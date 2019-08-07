@@ -8,6 +8,8 @@ from flask_debugtoolbar import DebugToolbarExtension
 
 from model import connect_to_db, db, User, Rating, Movie
 
+from sqlalchemy.orm.exc import NoResultFound
+
 
 app = Flask(__name__)
 
@@ -40,7 +42,7 @@ def register_form():
 
 @app.route('/register', methods=['POST'])
 def register_process():
-    print("\n\n\n\n\n\n\n\n******inside function")
+
     email = request.form.get('email')
     password = request.form.get('password')
 
@@ -53,25 +55,38 @@ def register_process():
     # Once we're done, we should commit our work
     db.session.commit()
 
+
     return redirect('/')
 
-@app.route('/login')
+@app.route('/login', methods=['GET'])
 def login_form():
 
     return render_template('login_form.html')
 
-@app.route('/logged_In')
+@app.route('/logged', methods=['GET'])
 def logged_in():
+    print("\n\n\n\n\n\n\n\n******inside function")
+    email = request.args.get('email')
+    password = request.args.get('password')
+    print("\n\n\nUSERS INPUT", email, password)
+    try:
+        user = User.query.filter(User.email == email).one()
+        print("USER INSTANCE EMAIL", user.email)
+        print("USER INSTANCE PASSWORD", user.password)
 
-    email = request.form.get('email')
-    password = request.form.get('password')
-
-    user = User.query.filter(User.email == email).first()
-    # NEEDS DEBUGGIN
-    if user.password == password:
-    #flash message about success
-        return redirect('/')
-    else:
+        # NEEDS DEBUGGIN
+        if user.password == password:
+        #flash message about success
+            session['logged_in'] = True
+            flash("Login Successful")
+            flash("hoorayy!!!")
+            return redirect('/')
+        else:
+            session['logged_in'] = False
+            flash("Login Failed, invalid email or PASSWORD")
+            return redirect('/login')
+    except NoResultFound:
+        flash("Login Failed, invalid EMAIL or password")
         return redirect('/login')
 
 
