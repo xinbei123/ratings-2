@@ -5,8 +5,9 @@ from model import User
 from model import Rating
 from model import Movie
 
-from model import connect_to_db, db, datetime
+from model import connect_to_db, db
 from server import app
+import datetime
 
 
 def load_users():
@@ -41,11 +42,11 @@ def load_movies():
 
     for row in open("seed_data/u.item"):
         row = row.rstrip()
-        movie_id, title, released_at, imdb_url = row.split("|")
+        movie_id, title, released_str, junk, imdb_url = row.split("|")[:5]
         title = title[0:-7]
 
-        if released_at:
-            released_at = datetime.datetime.strptime(released_at, "%d-%b-%Y")
+        if released_str:
+            released_at = datetime.datetime.strptime(released_str, "%d-%b-%Y")
         else:
             released_at = None
 
@@ -66,7 +67,7 @@ def load_ratings():
 
     for row in open("seed_data/u.data"):
         row = row.rstrip()
-        user_id, movie_id, score = row.split("")
+        user_id, movie_id, score, timestamp = row.split("\t")
 
         rating = Rating(user_id=user_id,
                         movie_id=movie_id,
