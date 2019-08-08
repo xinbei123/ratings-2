@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  <h2>Movie Details</h2>
+
+  <h3>Title: {{ movie.title }}</h3>
+  <h3>Released Date: {{ movie.released_at }}</h3>
+  {% if session['login_status'] == True %}
+
+  <form action="/rate_movie/{{movie.movie_id}}" method="POST">
+      <select>
+        <option name="score" value="1"> 1 </option>
+        <option name="score" value="2"> 2 </option>
+        <option name="score" value="3"> 3 </option>
+        <option name="score" value="4"> 4 </option>
+        <option name="score" value="5"> 5 </option>
+      </select>    
+      <button type="submit">Rate</button>
+  </form>
+
+  {% endif %}
+
+
+  <h3> Movie Ratings </h3>
+  <table>
+    <tr>
+      <th> Movie Rated By User </th>
+      <th> Movie Score </th>
+    </tr>
+    
+    {% for movie_rating in movie.ratings %}
+      <tr> 
+        <td> {{ movie_rating.user.user_id}} </td> 
+        <td> {{ movie_rating.score }} </td>
+      </tr>
+      
+    {% endfor %}
+  </table>
+
+{% endblock %}

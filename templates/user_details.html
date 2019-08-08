@@ -3,14 +3,24 @@
 
   <h2>User Details</h2>
 
-  <ul>
-    <li>
-      {{ user.age }}
-    </li>
-    <li>
-      {{ user.zipcode }}
-    </li>
-    {% for movie in user.movies %}
-  </ul>
+  <h3>Age: {{ user.age }}</h3>
+  <h3>Zicode: {{ user.zipcode }}</h3>
+
+  <h3> Movie Ratings </h3>
+  <table>
+    <tr>
+      <th> Movie Title </th>
+      <th> Movie Score </th>
+    </tr>
+    
+    {% for movie_rating in user.ratings %}
+      <tr> 
+        <td> {{ movie_rating.movie.title }} </td> 
+        <td> {{ movie_rating.score }} </td>
+      </tr>
+      
+    {% endfor %}
+  </table>
 
 {% endblock %}
+

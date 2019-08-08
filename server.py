@@ -37,6 +37,12 @@ def user_list():
     users = User.query.all()
     return render_template("user_list.html", users=users)
 
+@app.route('/movies')
+def movie_list():
+    """Show movie list"""
+
+    movies = Movie.query.all()
+    return render_template('movie_list.html', movies=movies)
 
 @app.route('/register', methods=['GET'])
 def register_form():
@@ -89,7 +95,7 @@ def logged_in():
             print("\n\n\n\n", session['user_id'])
             print("\n\n\n\n", session['login_status'])
             flash("Login Successful")
-            return redirect('/')
+            return redirect(f"/users/{user.user_id}")
         else:
             session['login_status'] = False
             flash("Login Failed, invalid email or PASSWORD")
@@ -108,6 +114,7 @@ def logout():
 
     return redirect('/')
 
+
 @app.route('/users/<int:user_id>')
 def user_detail(user_id):
 
@@ -115,6 +122,38 @@ def user_detail(user_id):
 
     return render_template('user_details.html',
                            user=user)
+
+
+@app.route('/movies/<int:movie_id>')
+def movie_detail(movie_id):
+
+    movie = Movie.query.get(movie_id)
+
+    return render_template('movie_details.html', movie=movie)
+
+@app.route('/rate_movie/<int:movie_id>', methods=['POST'])
+def rate_movie(movie_id):
+    user = session['user_id']
+    score = int(request.form.get('score'))
+    movie = Movie.query.get(movie_id)
+    # ratings_user_list = []
+    # for rating in movie.rating:
+    #     ratings_user_list.append(rating.user_id)
+    if Rating.query.filter_by(user_id=user, movie_id=movie_id) :
+        # UPDATE EXHISTING RATING
+        rating = Rating.query.filter_by(user_id=user, movie_id=movie_id)
+        rating.score = score
+        db.session.commit()
+    else:        
+        movie.ratings.append(user, score)
+        db.session.commit()
+    # if user in ratings_user_list:
+    #     movie.ratings.query.filter_by(user_id=user).score = score
+    # else:
+        # rating = Rating(movie_id, user, score)
+    return render_template('movie_details.html', movie=movie)
+        
+
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
