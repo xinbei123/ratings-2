@@ -2,9 +2,14 @@
 <html>
 <head>
   <title>Ratings</title>
+
+  {% if session['login_status'] == True %}
+  <form action="/logout">
+      <button type="submit">Logout</button>
+  </form>
+  {% endif %}
+
 </head>
-
-
 
 <body>
 

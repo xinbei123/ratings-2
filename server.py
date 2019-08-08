@@ -25,7 +25,10 @@ app.jinja_env.undefined = StrictUndefined
 @app.route('/')
 def index():
     """Homepage."""
+    if not session['login_status']:
+        session['login_status'] = False
     return render_template('homepage.html')
+
 
 @app.route("/users")
 def user_list():
@@ -33,6 +36,7 @@ def user_list():
 
     users = User.query.all()
     return render_template("user_list.html", users=users)
+
 
 @app.route('/register', methods=['GET'])
 def register_form():
@@ -58,10 +62,12 @@ def register_process():
 
     return redirect('/')
 
+
 @app.route('/login', methods=['GET'])
 def login_form():
 
     return render_template('login_form.html')
+
 
 @app.route('/logged', methods=['GET'])
 def logged_in():
@@ -69,6 +75,7 @@ def logged_in():
     email = request.args.get('email')
     password = request.args.get('password')
     print("\n\n\nUSERS INPUT", email, password)
+
     try:
         user = User.query.filter(User.email == email).one()
         print("USER INSTANCE EMAIL", user.email)
@@ -77,20 +84,37 @@ def logged_in():
         # NEEDS DEBUGGIN
         if user.password == password:
         #flash message about success
-            session['logged_in'] = True
+            session['login_status'] = True
+            session['user_id'] = user.user_id
+            print("\n\n\n\n", session['user_id'])
+            print("\n\n\n\n", session['login_status'])
             flash("Login Successful")
-            flash("hoorayy!!!")
             return redirect('/')
         else:
-            session['logged_in'] = False
+            session['login_status'] = False
             flash("Login Failed, invalid email or PASSWORD")
             return redirect('/login')
     except NoResultFound:
+        session['login_status'] = False
         flash("Login Failed, invalid EMAIL or password")
         return redirect('/login')
 
 
+@app.route('/logout')
+def logout():
 
+    session['login_status'] = False
+    del session['user_id']
+
+    return redirect('/')
+
+@app.route('/users/<int:user_id>')
+def user_detail(user_id):
+
+    user = User.query.get(user_id)
+
+    return render_template('user_details.html',
+                           user=user)
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
