@@ -136,21 +136,20 @@ def rate_movie(movie_id):
     user = session['user_id']
     score = int(request.form.get('score'))
     movie = Movie.query.get(movie_id)
-    # ratings_user_list = []
-    # for rating in movie.rating:
-    #     ratings_user_list.append(rating.user_id)
-    if Rating.query.filter_by(user_id=user, movie_id=movie_id) :
+
+    try:
         # UPDATE EXHISTING RATING
-        rating = Rating.query.filter_by(user_id=user, movie_id=movie_id)
+        rating = Rating.query.filter_by(user_id=user, movie_id=movie_id).one()
         rating.score = score
         db.session.commit()
-    else:        
-        movie.ratings.append(user, score)
+
+    except NoResultFound:        
+        
+        rating = Rating(user_id=user, score=score)
+        movie.ratings.append(rating)
+
         db.session.commit()
-    # if user in ratings_user_list:
-    #     movie.ratings.query.filter_by(user_id=user).score = score
-    # else:
-        # rating = Rating(movie_id, user, score)
+
     return render_template('movie_details.html', movie=movie)
         
 
